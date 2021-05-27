@@ -1,0 +1,9 @@
+ancestor:
+releases:
+  1.0.0:
+    changes:
+      minor_changes:
+      - add timeperiod_template and corresponding info module (https://github.com/T-Systems-MMS/ansible-collection-icinga-director/pull/118)
+      trivial:
+      - Improve Release Action (https://github.com/T-Systems-MMS/ansible-collection-icinga-director/pull/116)
+    release_date: '2021-05-27'

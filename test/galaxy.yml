@@ -1,0 +1,14 @@
+namespace: t_systems_mms
+name: testing
+version: 1.0.0
+readme: README.md
+authors:
+  - Sebastian Gumprich <sebastian.gumprich@t-systems.com>
+description: >-
+  This collection is just for testing
+license:
+  - GPL-2.0-or-later
+license_file: ''
+tags:
+  - test
+dependencies: {}
