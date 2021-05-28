@@ -5,5 +5,5 @@ T_Systems_Mms.Testing Release Notes
 .. contents:: Topics
 
 
-v1.0.0
-======
+v1.17.0
+=======

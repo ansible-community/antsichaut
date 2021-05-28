@@ -166,7 +166,7 @@ class ChangelogCIBase:
 
         group_config = [
             {"title": "major_changes", "labels": ["major", "breaking"]},
-            {"title": "minor_changes", "labels": ["minor", "enhancment"]},
+            {"title": "minor_changes", "labels": ["minor", "enhancement"]},
             {"title": "breaking_changes", "labels": ["major", "breaking"]},
             {"title": "deprecated_features", "labels": ["deprecated"]},
             {"title": "removed_features", "labels": ["removed"]},
@@ -185,17 +185,20 @@ class ChangelogCIBase:
         # add changes-key to the release dict
         dict(data)["releases"][new_version].insert(0, "changes", {})
 
-        for config in group_config:
+        leftover_changes = []
+        for pull_request in changes:
             if len(changes) == 0:
                 break
-
-            for pull_request in changes:
+            for config in group_config:
                 if any(label in pull_request["labels"] for label in config["labels"]):
                     change_type = config["title"]
 
-                    dict(data)["releases"][new_version]["changes"].update(
-                        {change_type: []}
-                    )
+                    # add the new change section if it does not exist yet
+                    if change_type not in dict(data)["releases"][new_version]["changes"]:
+                        dict(data)["releases"][new_version]["changes"].update(
+                            {change_type: []}
+                        )
+
                     pr = self._get_changelog_line(pull_request)
 
                     # if the pr is already in the dict, do not add it, just remove it
@@ -204,7 +207,6 @@ class ChangelogCIBase:
                         pr
                         in dict(data)["releases"][new_version]["changes"][change_type]
                     ):
-                        changes.remove(pull_request)
                         break
 
                     # if there is no change of this change_type yet, add a new list
@@ -212,29 +214,44 @@ class ChangelogCIBase:
                         dict(data)["releases"][new_version]["changes"][change_type] = [
                             pr
                         ]
+                        break
                     # if there is a change of this change_type, append to the list
                     else:
                         dict(data)["releases"][new_version]["changes"][
                             change_type
                         ].append(pr)
-                    changes.remove(pull_request)
+                        break
+            else:
+                leftover_changes.append(pull_request)
+                continue
+
 
         # all other changes without labels go to the trivial section
         change_type = "trivial"
-        while changes:
-            for pull_request in changes:
-                dict(data)["releases"][new_version]["changes"].update({change_type: []})
-                pr = self._get_changelog_line(pull_request)
-                if pr in dict(data)["releases"][new_version]["changes"][change_type]:
-                    changes.remove(pull_request)
-                    break
-                if not dict(data)["releases"][new_version]["changes"][change_type]:
-                    dict(data)["releases"][new_version]["changes"][change_type] = [pr]
-                else:
-                    dict(data)["releases"][new_version]["changes"][change_type].append(
-                        pr
-                    )
-                changes.remove(pull_request)
+        for pull_request in leftover_changes:
+            if change_type not in dict(data)["releases"][new_version]["changes"]:
+                dict(data)["releases"][new_version]["changes"].update(
+                    {change_type: []}
+                )
+
+            pr = self._get_changelog_line(pull_request)
+
+            # if the pr is already in the dict, do not add it, just remove it
+            # from the list of pull_requests
+            if (
+                pr
+                in dict(data)["releases"][new_version]["changes"][change_type]
+            ):
+                continue
+            if not dict(data)["releases"][new_version]["changes"][change_type]:
+                dict(data)["releases"][new_version]["changes"][change_type] = [
+                    pr
+                ]
+            # if there is a change of this change_type, append to the list
+            else:
+                dict(data)["releases"][new_version]["changes"][
+                    change_type
+                ].append(pr)
 
         return data
 
