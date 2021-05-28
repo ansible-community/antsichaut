@@ -3,9 +3,11 @@ from functools import cached_property
 import requests
 from ruamel.yaml import YAML
 
+import configargparse
+
 
 class ChangelogCIBase:
-    """Base Class for antsi_change_pr_getter """
+    """Base Class for antsi_change_pr_getter"""
 
     github_api_url = "https://api.github.com"
 
@@ -194,7 +196,10 @@ class ChangelogCIBase:
                     change_type = config["title"]
 
                     # add the new change section if it does not exist yet
-                    if change_type not in dict(data)["releases"][new_version]["changes"]:
+                    if (
+                        change_type
+                        not in dict(data)["releases"][new_version]["changes"]
+                    ):
                         dict(data)["releases"][new_version]["changes"].update(
                             {change_type: []}
                         )
@@ -225,36 +230,25 @@ class ChangelogCIBase:
                 leftover_changes.append(pull_request)
                 continue
 
-
         # all other changes without labels go to the trivial section
         change_type = "trivial"
         for pull_request in leftover_changes:
             if change_type not in dict(data)["releases"][new_version]["changes"]:
-                dict(data)["releases"][new_version]["changes"].update(
-                    {change_type: []}
-                )
+                dict(data)["releases"][new_version]["changes"].update({change_type: []})
 
             pr = self._get_changelog_line(pull_request)
 
             # if the pr is already in the dict, do not add it, just remove it
             # from the list of pull_requests
-            if (
-                pr
-                in dict(data)["releases"][new_version]["changes"][change_type]
-            ):
+            if pr in dict(data)["releases"][new_version]["changes"][change_type]:
                 continue
             if not dict(data)["releases"][new_version]["changes"][change_type]:
-                dict(data)["releases"][new_version]["changes"][change_type] = [
-                    pr
-                ]
+                dict(data)["releases"][new_version]["changes"][change_type] = [pr]
             # if there is a change of this change_type, append to the list
             else:
-                dict(data)["releases"][new_version]["changes"][
-                    change_type
-                ].append(pr)
+                dict(data)["releases"][new_version]["changes"][change_type].append(pr)
 
         return data
-
 
     def run(self):
         """Entrypoint to the Changelog CI"""
@@ -268,10 +262,41 @@ class ChangelogCIBase:
 
         self._write_changelog(string_data)
 
+
 if __name__ == "__main__":
-    repository = os.environ["GITHUB_REPOSITORY"]
-    token = os.environ.get("GITHUB_TOKEN")
-    since_version = os.environ.get("SINCE_VERSION")
+    p = configargparse.ArgParser(
+        default_config_files=["./.antsi_change_pr_getter.conf"]
+    )
+
+    # Add the arguments
+    p.add(
+        "--repository",
+        type=str,
+        help="the github-repository in the form of owner/repo-name",
+        env_var="GITHUB_REPOSITORY",
+        required=True,
+    )
+    p.add(
+        "--token",
+        type=str,
+        help="a token to access github",
+        env_var="GITHUB_TOKEN",
+        required=True,
+    )
+    p.add(
+        "--since_version",
+        type=str,
+        help="the version to fetch PRs since",
+        env_var="SINCE_VERSION",
+        required=True,
+    )
+
+    # Execute the parse_args() method
+    args = p.parse_args()
+
+    repository = args.repository
+    since_version = args.since_version
+    token = args.token
 
     ci = ChangelogCIBase(repository, since_version, token=token)
     # Run Changelog CI

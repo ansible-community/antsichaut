@@ -11,35 +11,14 @@ according to this configuration (currently hardcoded):
 
 ```
 group_config = [
-		{
-		"title": "major_changes",
-		"labels": ["major", "breaking"]
-		},
-		{
-		"title": "minor_changes",
-		"labels": ["minor", "enhancment"]
-		},
-		{
-		"title": "breaking_changes",
-		"labels": ["major", "breaking"]
-		},
-		{
-		"title": "deprecated_features",
-		"labels": ["deprecated"]
-		},
-		{
-		"title": "removed_features",
-		"labels": ["removed"]
-		},
-		{
-		"title": "security_fixes",
-		"labels": ["security"]
-		},
-		{
-		"title": "bugfixes",
-		"labels": ["bug", "bugfix"]
-		}
-		]
+		{"title": "major_changes", "labels": ["major", "breaking"]},
+		{"title": "minor_changes", "labels": ["minor", "enhancement"]},
+		{"title": "breaking_changes", "labels": ["major", "breaking"]},
+		{"title": "deprecated_features", "labels": ["deprecated"]},
+		{"title": "removed_features", "labels": ["removed"]},
+		{"title": "security_fixes", "labels": ["security"]},
+		{"title": "bugfixes", "labels": ["bug", "bugfix"]},
+]
 ```
 
 This means for example that PR's with the label `major` get categorized

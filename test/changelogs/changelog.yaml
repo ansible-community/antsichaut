@@ -1,13 +1,13 @@
+ancestor:
 releases:
   1.0.0:
     changes:
-      release_summary: This is the initial White Rabbit release. Enjoy!
       minor_changes:
       - add Usergroups modules (https://github.com/T-Systems-MMS/ansible-collection-icinga-director/pull/114)
-      - add timeperiod_template and corresponding info module (https://github.com/T-Systems-MMS/ansible-collection-icinga-director/pull/118)
       - update notification modules - add option user_groups (https://github.com/T-Systems-MMS/ansible-collection-icinga-director/pull/112)
+      - add timeperiod_template and corresponding info module (https://github.com/T-Systems-MMS/ansible-collection-icinga-director/pull/118)
       trivial:
-      - Update installation instructions in README.md (https://github.com/T-Systems-MMS/ansible-collection-icinga-director/pull/115)
       - add ansible-2.11 to CI (https://github.com/T-Systems-MMS/ansible-collection-icinga-director/pull/117)
+      - Update installation instructions in README.md (https://github.com/T-Systems-MMS/ansible-collection-icinga-director/pull/115)
       - Improve Release Action (https://github.com/T-Systems-MMS/ansible-collection-icinga-director/pull/116)
     codename: White Rabbit
