@@ -261,7 +261,8 @@ class ChangelogCIBase:
 
 if __name__ == "__main__":
     p = configargparse.ArgParser(
-        default_config_files=["./.antsi_change_pr_getter.conf"]
+        default_config_files=[".antsi_change_pr_getter_config.yaml"],
+        config_file_parser_class=configargparse.YAMLConfigFileParser
     )
 
     # Add the arguments
