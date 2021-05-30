@@ -217,11 +217,10 @@ class ChangelogCIBase:
                         ]
                         break
                     # if there is a change of this change_type, append to the list
-                    else:
-                        dict(data)["releases"][new_version]["changes"][
-                            change_type
-                        ].append(pr)
-                        break
+                    dict(data)["releases"][new_version]["changes"][
+                        change_type
+                    ].append(pr)
+                    break
             else:
                 leftover_changes.append(pull_request)
                 continue
@@ -247,7 +246,7 @@ class ChangelogCIBase:
         return data
 
     def run(self):
-        """Entrypoint to the Changelog CI"""
+        """Entrypoint"""
 
         changes = self.get_changes_after_last_release()
         # exit the method if there are no changes found
