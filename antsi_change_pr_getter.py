@@ -1,4 +1,3 @@
-import os
 from functools import cached_property
 import requests
 from ruamel.yaml import YAML
@@ -34,13 +33,13 @@ class ChangelogCIBase:
 
         return headers
 
-    def _get_release_id(self):
+    def _get_release_id(self, release_version):
         """Get ID of a specific release"""
 
-        url = ("{base_url}/repos/{repo_name}/releases/tags/{since_version}").format(
+        url = ("{base_url}/repos/{repo_name}/releases/tags/{version}").format(
             base_url=self.github_api_url,
             repo_name=self.repository,
-            since_version=self.since_version,
+            version=release_version,
         )
 
         response = requests.get(url, headers=self._get_request_headers)
@@ -60,13 +59,13 @@ class ChangelogCIBase:
             print(msg)
         return release_id
 
-    def _get_latest_release_date(self):
+    def _get_release_date(self, release_version):
         """Using GitHub API gets latest release date"""
 
-        if since_version == "latest":
-            version = since_version
+        if release_version == "latest":
+            version = release_version
         else:
-            version = self._get_release_id()
+            version = self._get_release_id(release_version)
 
         url = ("{base_url}/repos/{repo_name}/releases/{version}").format(
             base_url=self.github_api_url, repo_name=self.repository, version=version
@@ -104,15 +103,18 @@ class ChangelogCIBase:
         return "{title} ({url})".format(title=item["title"], url=item["url"])
 
     def get_changes_after_last_release(self):
-        """Get all the merged pull request after latest release"""
-        previous_release_date = self._get_latest_release_date()
+        """Get all the merged pull request after specified release until optionally specified release"""
+        since_release_date = self._get_release_date(since_version)
 
-        if previous_release_date:
-            merged_date_filter = "merged:>=" + previous_release_date
+        if to_version:
+            merged_date_filter = (
+                "merged:"
+                + since_release_date
+                + ".."
+                + self._get_release_date(to_version)
+            )
         else:
-            # if there is no release for the repo then
-            # do not filter by merged date
-            merged_date_filter = ""
+            merged_date_filter = "merged:>=" + since_release_date
 
         url = (
             "{base_url}/search/issues"
@@ -147,11 +149,7 @@ class ChangelogCIBase:
                     }
                     items.append(data)
             else:
-                msg = (
-                    f"There was no pull request "
-                    f"made on {self.repository} after last release."
-                )
-                print(msg)
+                print("No pull request found")
         else:
             msg = (
                 f"Could not get pull requests for "
@@ -189,8 +187,6 @@ class ChangelogCIBase:
 
         leftover_changes = []
         for pull_request in changes:
-            if len(changes) == 0:
-                break
             for config in group_config:
                 if any(label in pull_request["labels"] for label in config["labels"]):
                     change_type = config["title"]
@@ -277,7 +273,7 @@ if __name__ == "__main__":
         required=True,
     )
     p.add(
-        "--token",
+        "--github_token",
         type=str,
         help="a token to access github",
         env_var="GITHUB_TOKEN",
@@ -290,13 +286,21 @@ if __name__ == "__main__":
         env_var="SINCE_VERSION",
         required=True,
     )
+    p.add(
+        "--to_version",
+        type=str,
+        help="the version to fetch PRs to",
+        env_var="TO_VERSION",
+        required=False,
+    )
 
     # Execute the parse_args() method
     args = p.parse_args()
 
     repository = args.repository
     since_version = args.since_version
-    token = args.token
+    to_version = args.to_version
+    token = args.github_token
 
     ci = ChangelogCIBase(repository, since_version, token=token)
     # Run Changelog CI
