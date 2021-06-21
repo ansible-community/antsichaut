@@ -1,4 +1,4 @@
-# Antsi-Change-PR-getter (name subject to change)
+# Antsichaut
 
 This is a very rough first try at automating the parts
 of creating a `changelog.yaml` used by antsibull-changelog.

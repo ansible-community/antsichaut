@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from functools import cached_property
 import requests
 from ruamel.yaml import YAML
@@ -6,7 +8,7 @@ import configargparse
 
 
 class ChangelogCIBase:
-    """Base Class for antsi_change_pr_getter"""
+    """Base Class for antsichaut"""
 
     github_api_url = "https://api.github.com"
 
@@ -257,10 +259,9 @@ class ChangelogCIBase:
 
         self._write_changelog(string_data)
 
-
-if __name__ == "__main__":
+def main():
     p = configargparse.ArgParser(
-        default_config_files=[".antsi_change_pr_getter_config.yaml"],
+        default_config_files=[".antsichaut.yaml"],
         config_file_parser_class=configargparse.YAMLConfigFileParser,
     )
 
@@ -305,3 +306,6 @@ if __name__ == "__main__":
     ci = ChangelogCIBase(repository, since_version, token=token)
     # Run Changelog CI
     ci.run()
+
+if __name__ == "__main__":
+    main()
