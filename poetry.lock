@@ -55,7 +55,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
 name = "ruamel.yaml"
 version = "0.17.9"
 description = "ruamel.yaml is a YAML parser/emitter that supports roundtrip preservation of comments, seq/map flow style, and map key order"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3"
 
@@ -70,7 +70,7 @@ jinja2 = ["ruamel.yaml.jinja2 (>=0.2)"]
 name = "ruamel.yaml.clib"
 version = "0.2.2"
 description = "C version of reader, parser and emitter for ruamel.yaml derived from libyaml"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -90,7 +90,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "c6fbae91a5a8d246daaf9993fcc11229774c9ef20b9bd3ec0bca1bec6ead4de4"
+content-hash = "ecc69c31a35c175bd3b78c3fa927a97171fd748698ec1d14e0bedc84803cf011"
 
 [metadata.files]
 certifi = [
