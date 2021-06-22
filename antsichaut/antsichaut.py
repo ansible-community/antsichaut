@@ -23,6 +23,7 @@ class ChangelogCIBase:
         self.filename = filename
         self.token = token
         self.since_version = since_version
+        self.to_version = to_version
 
     @cached_property
     def _get_request_headers(self):
