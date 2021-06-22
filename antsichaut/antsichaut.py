@@ -106,14 +106,14 @@ class ChangelogCIBase:
 
     def get_changes_after_last_release(self):
         """Get all the merged pull request after specified release until optionally specified release"""
-        since_release_date = self._get_release_date(since_version)
+        since_release_date = self._get_release_date(self.since_version)
 
-        if to_version:
+        if self.to_version:
             merged_date_filter = (
                 "merged:"
                 + since_release_date
                 + ".."
-                + self._get_release_date(to_version)
+                + self._get_release_date(self.to_version)
             )
         else:
             merged_date_filter = "merged:>=" + since_release_date
@@ -303,7 +303,7 @@ def main():
     to_version = args.to_version
     token = args.github_token
 
-    ci = ChangelogCIBase(repository, since_version, token=token)
+    ci = ChangelogCIBase(repository, since_version, to_version, token=token)
     # Run Changelog CI
     ci.run()
 
