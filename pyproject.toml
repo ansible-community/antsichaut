@@ -27,7 +27,6 @@ requests = "^2.25.1"
 "ruamel.yaml" = "^0.17.9"
 
 [tool.poetry.dev-dependencies]
-python = "^3.8"
 ConfigArgParse = "^1.4.1"
 requests = "^2.25.1"
 "ruamel.yaml" = "^0.17.9"
