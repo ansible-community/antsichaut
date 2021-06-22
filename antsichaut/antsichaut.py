@@ -16,6 +16,7 @@ class ChangelogCIBase:
         self,
         repository,
         since_version,
+        to_version,
         filename="changelogs/changelog.yaml",
         token=None,
     ):

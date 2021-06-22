@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "antsichaut"
-version = "0.1.5"
+version = "0.1.6"
 description = "antsichaut automates ansible changelog generation from GitHub Pull Requests"
 authors = ["Sebastian Gumprich <sebastian.gumprich@t-systems.com>"]
 license = "MIT"
