@@ -1,7 +1,6 @@
 # Antsichaut
 
-This is a very rough first try at automating the parts
-of creating a `changelog.yaml` used by antsibull-changelog.
+This is a first try at automating the filling of a `changelog.yaml` used by antsibull-changelog.
 
 You define a Github repository and a Github release. Then the script
 searches all pull requests since the release and adds them to the `changelog.yaml`.
@@ -29,14 +28,12 @@ PR's that do not have one of the above labels get categorized into the
 
 ## Installation
 
-Install the requirements:
-
 ```
-pip install -r requirements.txt
+pip install antsichaut
 ```
 
 
-## Usage
+## Manual Usage
 
 You need a minimal `changelog.yml` created by antsibull-changelog:
 
@@ -48,14 +45,28 @@ Then define the version and the github repository you want to fetch the PRs from
 Either via arguments or via environment variables:
 
 ```
-> python3 antsi_change_pr_getter.py --github_token 123456789012345678901234567890abcdefabcd --since_version 1.17.0 --to_version 1.18.0 --github_repository=T-Systems-MMS/ansible-collection-icinga-director
+> cd /path/to/your/ansible/collection
+> antsichaut \ 
+  --github_token 123456789012345678901234567890abcdefabcd \ 
+  --since_version 1.17.0 \
+  --to_version 1.18.0 \
+  --github_repository=T-Systems-MMS/ansible-collection-icinga-director
 ```
 
 ```
-export SINCE_VERSION=1.17.0  # (or `latest`)
-export TO_VERSION=1.18.0     # optional. if unset, defaults to current date
-export GITHUB_REPOSITORY=T-Systems-MMS/ansible-collection-icinga-director
+> cd /path/to/your/ansible/collection
+> export SINCE_VERSION=1.17.0  # (or `latest`)
+> export TO_VERSION=1.18.0     # optional. if unset, defaults to current date
+> export GITHUB_REPOSITORY=T-Systems-MMS/ansible-collection-icinga-director
+> antsichaut
 ```
+
+This will fill the `changelog.yaml` with Pull Requests.
+Then run `antsibull-changelog generate` to create the final changelog.
+
+## Usage with Github Actions
+
+Check this [example](https://github.com/T-Systems-MMS/ansible-collection-icinga-director/blob/21e39f00ad792a36be1373c9d8755caa8b2bc2a5/.github/workflows/release.yml) out.
 
 ## Acknowledgements and Kudos
 
