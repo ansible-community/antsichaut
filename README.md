@@ -5,8 +5,7 @@ This is a first try at automating the filling of a `changelog.yaml` used by ants
 You define a Github repository and a Github release. Then the script
 searches all pull requests since the release and adds them to the `changelog.yaml`.
 
-The PR's get categorized into the changelog-sections based on labels and
-according to this configuration (currently hardcoded):
+The PR's get categorized into the changelog-sections based on these default labels:
 
 ```
 group_config = [
@@ -46,10 +45,13 @@ Either via arguments or via environment variables:
 
 ```
 > cd /path/to/your/ansible/collection
-> antsichaut \ 
-  --github_token 123456789012345678901234567890abcdefabcd \ 
+> antsichaut \
+  --github_token 123456789012345678901234567890abcdefabcd \
   --since_version 1.17.0 \
   --to_version 1.18.0 \
+  --major_changes_labels=foo
+  --major_changes_labels=bar
+  --minor_changes_labels=baz
   --github_repository=T-Systems-MMS/ansible-collection-icinga-director
 ```
 
@@ -58,6 +60,8 @@ Either via arguments or via environment variables:
 > export SINCE_VERSION=1.17.0  # (or `latest`)
 > export TO_VERSION=1.18.0     # optional. if unset, defaults to current date
 > export GITHUB_REPOSITORY=T-Systems-MMS/ansible-collection-icinga-director
+> export MAJOR_CHANGES_LABELS=["foo","bar"]
+> export MINOR_CHANGES_LABELS=["baz"]
 > antsichaut
 ```
 

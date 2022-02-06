@@ -17,6 +17,7 @@ class ChangelogCIBase:
         repository,
         since_version,
         to_version,
+        group_config,
         filename="changelogs/changelog.yaml",
         token=None,
     ):
@@ -25,6 +26,7 @@ class ChangelogCIBase:
         self.token = token
         self.since_version = since_version
         self.to_version = to_version
+        self.group_config = group_config
 
     @cached_property
     def _get_request_headers(self):
@@ -168,16 +170,6 @@ class ChangelogCIBase:
         """Parse the pull requests data and return a string"""
         yaml = YAML()
 
-        group_config = [
-            {"title": "major_changes", "labels": ["major", "breaking"]},
-            {"title": "minor_changes", "labels": ["minor", "enhancement"]},
-            {"title": "breaking_changes", "labels": ["major", "breaking"]},
-            {"title": "deprecated_features", "labels": ["deprecated"]},
-            {"title": "removed_features", "labels": ["removed"]},
-            {"title": "security_fixes", "labels": ["security"]},
-            {"title": "bugfixes", "labels": ["bug", "bugfix"]},
-        ]
-
         with open(
             "changelogs/changelog.yaml",
         ) as file:
@@ -191,7 +183,7 @@ class ChangelogCIBase:
 
         leftover_changes = []
         for pull_request in changes:
-            for config in group_config:
+            for config in self.group_config:
                 if any(label in pull_request["labels"] for label in config["labels"]):
                     change_type = config["title"]
 
@@ -258,13 +250,14 @@ class ChangelogCIBase:
             return
 
         string_data = self.parse_changelog(changes)
-
         self._write_changelog(string_data)
+
 
 def main():
     p = configargparse.ArgParser(
         default_config_files=[".antsichaut.yaml"],
         config_file_parser_class=configargparse.YAMLConfigFileParser,
+        formatter_class=configargparse.ArgumentDefaultsHelpFormatter,
     )
 
     # Add the arguments
@@ -296,18 +289,111 @@ def main():
         env_var="TO_VERSION",
         required=False,
     )
+    p.add(
+        "--major_changes_labels",
+        dest="major_changes_labels",
+        type=str,
+        action="append",
+        help="the labels for major changes. Default: ['major', 'breaking']",
+        env_var="MAJOR_CHANGES_LABELS",
+        required=False,
+    )
+    p.add(
+        "--minor_changes_labels",
+        dest="minor_changes_labels",
+        type=str,
+        action="append",
+        help="the labels for minor changes. Default: ['minor', 'enhancement']",
+        env_var="MINOR_CHANGES_LABELS",
+        required=False,
+    )
+    p.add(
+        "--breaking_changes_labels",
+        dest="breaking_changes_labels",
+        type=str,
+        action="append",
+        help="the labels for breaking changes. Default: ['major', 'breaking']",
+        env_var="BRAKING_CHANGES_LABELS",
+        required=False,
+    )
+    p.add(
+        "--deprecated_features_labels",
+        dest="deprecated_features_labels",
+        type=str,
+        action="append",
+        help="the labels for deprecated features. Default: ['deprecated']",
+        env_var="DEPRECATED_FEATURES_LABELS",
+        required=False,
+    )
+    p.add(
+        "--removed_features_labels",
+        dest="removed_features_labels",
+        type=str,
+        action="append",
+        help="the labels for removed features. Default: ['removed']",
+        env_var="REMOVED_FEATURES_LABELS",
+        required=False,
+    )
+    p.add(
+        "--security_fixes_labels",
+        dest="security_fixes_labels",
+        type=str,
+        action="append",
+        help="the labels for security fixes. Default: ['security']",
+        env_var="SECURITY_FIXES_LABELS",
+        required=False,
+    )
+    p.add(
+        "--bugfixes_labels",
+        dest="bugfixes_labels",
+        type=str,
+        action="append",
+        help="the labels for bugfixes. Default: ['bug', 'bugfix']",
+        env_var="BUGFIXES_LABELS",
+        required=False,
+    )
 
     # Execute the parse_args() method
     args = p.parse_args()
+
+    # set defaults if the labels are undefined
+    # setting them with argparse does not work, because
+    # with argparse you can only append to the defaults, not override them
+    if not args.major_changes_labels:
+        args.major_changes_labels = ["major", "breaking"]
+    if not args.minor_changes_labels:
+        args.minor_changes_labels = ["minor", "enhancement"]
+    if not args.breaking_changes_labels:
+        args.breaking_changes_labels = ["major", "breaking"]
+    if not args.deprecated_features_labels:
+        args.deprecated_features_labels = ["deprecated"]
+    if not args.removed_features_labels:
+        args.removed_features_labels = ["removed"]
+    if not args.security_fixes_labels:
+        args.security_fixes_labels = ["security"]
+    if not args.bugfixes_labels:
+        args.bugfixes_labels = ["bug", "bugfix"]
 
     repository = args.repository
     since_version = args.since_version
     to_version = args.to_version
     token = args.github_token
 
-    ci = ChangelogCIBase(repository, since_version, to_version, token=token)
+    group_config = [
+        {"title": "major_changes", "labels": args.major_changes_labels},
+        {"title": "minor_changes", "labels": args.minor_changes_labels},
+        {"title": "breaking_changes", "labels": args.breaking_changes_labels},
+        {"title": "deprecated_features", "labels": args.deprecated_features_labels},
+        {"title": "removed_features", "labels": args.removed_features_labels},
+        {"title": "security_fixes", "labels": args.security_fixes_labels},
+        {"title": "bugfixes", "labels": args.bugfixes_labels},
+    ]
+    ci = ChangelogCIBase(
+        repository, since_version, to_version, group_config, token=token
+    )
     # Run Changelog CI
     ci.run()
+
 
 if __name__ == "__main__":
     main()
