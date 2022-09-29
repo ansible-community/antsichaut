@@ -25,6 +25,7 @@ python = "^3.8"
 ConfigArgParse = "^1.4.1"
 requests = "^2.25.1"
 "ruamel.yaml" = "^0.17.9"
+single-source = "^0.3.0"
 
 [tool.poetry.dev-dependencies]
 ConfigArgParse = "^1.4.1"
