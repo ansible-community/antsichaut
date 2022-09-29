@@ -37,7 +37,7 @@ class ChangelogCIBase:
         # if the user adds `GITHUB_TOKEN` add it to API Request
         # required for `private` repositories
         if self.token:
-            headers.update({"authorization": "Bearer {token}".format(token=self.token)})
+            headers["authorization"] = "Bearer {token}".format(token=self.token)
 
         return headers
 
@@ -114,15 +114,7 @@ class ChangelogCIBase:
         """Get all the merged pull request after specified release until optionally specified release"""
         since_release_date = self._get_release_date(self.since_version)
 
-        if self.to_version:
-            merged_date_filter = (
-                "merged:"
-                + since_release_date
-                + ".."
-                + self._get_release_date(self.to_version)
-            )
-        else:
-            merged_date_filter = "merged:>=" + since_release_date
+        merged_date_filter = f"merged:{since_release_date}..{self._get_release_date(self.to_version)}" if self.to_version else f"merged:>={since_release_date}"
 
         url = (
             "{base_url}/search/issues"
