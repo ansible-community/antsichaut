@@ -103,6 +103,8 @@ class ChangelogCIBase:
         with open(self.filename, "r+") as file:
             # read the existing data and store it in a variable
             yaml = YAML()
+            yaml.explicit_start = True
+            yaml.indent(sequence=4, offset=2)
             yaml.dump(string_data, file)
 
     @staticmethod
