@@ -52,14 +52,14 @@ Either via arguments or via environment variables:
   --major_changes_labels=foo
   --major_changes_labels=bar
   --minor_changes_labels=baz
-  --github_repository=T-Systems-MMS/ansible-collection-icinga-director
+  --repository=T-Systems-MMS/ansible-collection-icinga-director
 ```
 
 ```
 > cd /path/to/your/ansible/collection
 > export SINCE_VERSION=1.17.0  # (or `latest`)
 > export TO_VERSION=1.18.0     # optional. if unset, defaults to current date
-> export GITHUB_REPOSITORY=T-Systems-MMS/ansible-collection-icinga-director
+> export REPOSITORY=T-Systems-MMS/ansible-collection-icinga-director
 > export MAJOR_CHANGES_LABELS=["foo","bar"]
 > export MINOR_CHANGES_LABELS=["baz"]
 > antsichaut
