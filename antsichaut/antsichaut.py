@@ -1,11 +1,11 @@
 #!/usr/bin/python
 
+from pathlib import Path
+from importlib.metadata import version as _version
 from functools import cached_property
 import requests
 from ruamel.yaml import YAML
-from pathlib import Path
 from single_source import get_version
-from importlib.metadata import version as _version
 import configargparse
 
 
@@ -113,10 +113,17 @@ class ChangelogCIBase:
         return "{title} ({url})".format(title=item["title"], url=item["url"])
 
     def get_changes_after_last_release(self):
-        """Get all the merged pull request after specified release until optionally specified release"""
+        """
+        Get all the merged pull request after specified release
+        until optionally specified release
+        """
         since_release_date = self._get_release_date(self.since_version)
 
-        merged_date_filter = f"merged:{since_release_date}..{self._get_release_date(self.to_version)}" if self.to_version else f"merged:>={since_release_date}"
+        merged_date_filter = (
+            f"merged:{since_release_date}..{self._get_release_date(self.to_version)}"
+            if self.to_version
+            else f"merged:>={since_release_date}"
+        )
 
         url = (
             "{base_url}/search/issues"
@@ -171,7 +178,8 @@ class ChangelogCIBase:
         ) as file:
             data = yaml.load(file)
 
-        # get the new version from the changelog.yaml by using the last item in the list of releases
+        # get the new version from the changelog.yaml
+        # by using the last item in the list of releases
         new_version = list(dict(dict(data)["releases"]))[-1]
 
         # add changes-key to the release dict
@@ -248,12 +256,14 @@ class ChangelogCIBase:
         string_data = self.parse_changelog(changes)
         self._write_changelog(string_data)
 
+
 def version():
     __version__ = get_version(__name__, Path(__file__).parent.parent)
     if not __version__:  # pragma: no cover
         # Only works when package is installed
-        __version__= _version('antsichaut')
+        __version__ = _version("antsichaut")
     return __version__
+
 
 def main():
     p = configargparse.ArgParser(
@@ -354,11 +364,7 @@ def main():
         env_var="BUGFIXES_LABELS",
         required=False,
     )
-    p.add(
-        "--version",
-        action="version",
-        version=version()
-    )
+    p.add("--version", action="version", version=version())
 
     # Execute the parse_args() method
     args = p.parse_args()
