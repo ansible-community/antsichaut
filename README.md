@@ -16,11 +16,14 @@ group_config = [
   {"title": "removed_features", "labels": ["removed"]},
   {"title": "security_fixes", "labels": ["security"]},
   {"title": "bugfixes", "labels": ["bug", "bugfix"]},
+  {"title": "skip_changelog", "labels": ["skip_changelog"]},
 ]
 ```
 
 This means for example that PR's with the label `major` get categorized
 into the `major_changes` section of the changelog.
+
+PR's that hace a `skip_changelog` do not get added to the changelog at all.
 
 PR's that do not have one of the above labels get categorized into the
 `trivial` section.

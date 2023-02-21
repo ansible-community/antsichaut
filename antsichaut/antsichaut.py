@@ -189,6 +189,11 @@ class ChangelogCIBase:
         for pull_request in changes:
             for config in self.group_config:
                 if any(label in pull_request["labels"] for label in config["labels"]):
+                    # if a PR contains a skip_changelog label,
+                    # do not add it to the changelog
+                    if config["title"] == "skip_changelog":
+                        break
+
                     change_type = config["title"]
 
                     # add the new change section if it does not exist yet
@@ -364,6 +369,15 @@ def main():
         env_var="BUGFIXES_LABELS",
         required=False,
     )
+    p.add(
+        "--skip_changelog_labels",
+        dest="skip_changelog_labels",
+        type=str,
+        action="append",
+        help="the labels for skip_changelog. Default: ['skip_changelog']",
+        env_var="SKIP_CHANGELOG_LABELS",
+        required=False,
+    )
     p.add("--version", action="version", version=version())
 
     # Execute the parse_args() method
@@ -386,6 +400,8 @@ def main():
         args.security_fixes_labels = ["security"]
     if not args.bugfixes_labels:
         args.bugfixes_labels = ["bug", "bugfix"]
+    if not args.skip_changelog_labels:
+        args.skip_changelog_labels = ["skip_changelog"]
 
     repository = args.repository
     since_version = args.since_version
@@ -400,6 +416,7 @@ def main():
         {"title": "removed_features", "labels": args.removed_features_labels},
         {"title": "security_fixes", "labels": args.security_fixes_labels},
         {"title": "bugfixes", "labels": args.bugfixes_labels},
+        {"title": "skip_changelog", "labels": args.skip_changelog_labels},
     ]
     ci = ChangelogCIBase(
         repository, since_version, to_version, group_config, token=token
