@@ -1,6 +1,6 @@
 # Antsichaut
 
-This is a first try at automating the filling of a `changelog.yaml` used by antsibull-changelog.
+Antsichaut automates the filling of a `changelog.yaml` used by antsibull-changelog.
 
 You define a Github repository and a Github release. Then the script
 searches all pull requests since the release and adds them to the `changelog.yaml`.
