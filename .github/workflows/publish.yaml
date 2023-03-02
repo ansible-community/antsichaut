@@ -1,0 +1,18 @@
+---
+name: Publish to PyPi
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: publish release to PyPi
+    steps:
+    - name: Setup Poetry
+      uses: pronovic/setup-poetry@v1
+
+    - name: Publish project
+      run: "poetry publish --username ${{ env.PYPI_USERNAME }} --password ${{ env.PYPI_PASSWORD }}"
