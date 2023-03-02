@@ -15,4 +15,4 @@ jobs:
       uses: pronovic/setup-poetry@v1
 
     - name: Publish project
-      run: "poetry publish --username ${{ env.PYPI_USERNAME }} --password ${{ env.PYPI_PASSWORD }}"
+      run: "poetry publish --username ${{ secrets.PYPI_USERNAME }} --password ${{ secrets.PYPI_PASSWORD }}"
