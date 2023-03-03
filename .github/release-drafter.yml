@@ -13,6 +13,7 @@ categories:
   - title: 'Bugfixes'
     labels:
       - 'bug'  # fbca04
+      - 'patch'  # fbca04
   - title: 'Deprecations'
     labels:
       - 'deprecated'  # fef2c0
