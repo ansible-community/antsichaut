@@ -19,7 +19,7 @@ jobs:
       uses: pronovic/setup-poetry@v1
 
     - name: update version
-      run: "poetry version ${{ github.ref }}"
+      run: "poetry version ${{ github.event.release.tag_name }}"
 
     - name: Publish project
       run: "poetry publish --build --username ${{ secrets.PYPI_USERNAME }} --password ${{ secrets.PYPI_PASSWORD }}"
@@ -29,7 +29,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         push-branch: 'main'
-        commit-message: 'update pyproject with new version ${{ github.ref }}'
+        commit-message: 'update pyproject with new version ${{ github.event.release.tag_name }}'
         force-add: 'true'
         files: pyproject.toml
         name: rndmh3ro
