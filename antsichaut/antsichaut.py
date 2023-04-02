@@ -172,7 +172,7 @@ class ChangelogCIBase:
     def remove_outdated(self, changes, data, new_version):
         """Remove outdate changes from changelog.
 
-        Walk through the exisitnig changelog looking for each PR.
+        Walk through the exisiting changelog looking for each PR.
         If the PR is found in a given line, but the title has changed,
         remove the line from the changelog. Rather than exit early,
         continue to walk through the changelog to ensure that all
