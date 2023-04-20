@@ -34,7 +34,6 @@ PR's that do not have one of the above labels get categorized into the
 pip install antsichaut
 ```
 
-
 ## Manual Usage
 
 You need a minimal `changelog.yml` created by antsibull-changelog:

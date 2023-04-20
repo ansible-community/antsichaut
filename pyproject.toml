@@ -12,16 +12,14 @@ homepage = "https://github.com/rndmh3ro/antsichaut"
 repository = "https://github.com/rndmh3ro/antsichaut"
 keywords = ["antsibull-changelog", "release", "ansible"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "Environment :: Console",
-    "Framework :: Ansible",
-    "License :: OSI Approved :: MIT License",
-    "Topic :: Software Development :: Documentation"
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Environment :: Console",
+  "Framework :: Ansible",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Software Development :: Documentation"
 ]
-include = [
-    "LICENSE",
-]
+include = ["LICENSE"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
