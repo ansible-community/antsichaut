@@ -8,7 +8,7 @@ description: >-
   This collection is just for testing
 license:
   - GPL-2.0-or-later
-license_file: ''
+license_file: ""
 tags:
   - test
 dependencies: {}
