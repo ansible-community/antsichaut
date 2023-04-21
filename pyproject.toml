@@ -36,6 +36,21 @@ requests = "^2.25.1"
 [tool.poetry.scripts]
 antsichaut = "antsichaut.antsichaut:main"
 
+[tool.ruff]
+fix = true
+line-length = 100
+builtins = ["__"]
+select = ["ALL"]
+# Work to clean these up
+ignore = [
+  "ANN", # flake8-annotations
+  "D", # flake8-docstrings
+  "FBT", # flake8 boolean, keep
+  "T201", # flake8-bugbear, replace print with logging
+
+]
+target-version = "py38"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
