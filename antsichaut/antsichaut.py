@@ -1,20 +1,21 @@
 #!/usr/bin/python
 
-from pathlib import Path
-from importlib.metadata import version as _version
 from functools import cached_property
+from importlib.metadata import version as _version
+from pathlib import Path
+
+import configargparse
 import requests
 from ruamel.yaml import YAML
 from single_source import get_version
-import configargparse
 
 
 class ChangelogCIBase:
-    """Base Class for antsichaut"""
+    """Base Class for antsichaut."""
 
     github_api_url = "https://api.github.com"
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         repository,
         since_version,
@@ -22,7 +23,7 @@ class ChangelogCIBase:
         group_config,
         filename="changelogs/changelog.yaml",
         token=None,
-    ):
+    ) -> None:
         self.repository = repository
         self.filename = filename
         self.token = token
@@ -32,29 +33,28 @@ class ChangelogCIBase:
 
     @cached_property
     def _get_request_headers(self):
-        """Get headers for GitHub API request"""
+        """Get headers for GitHub API request."""
         headers = {"Accept": "application/vnd.github.v3+json"}
         # if the user adds `GITHUB_TOKEN` add it to API Request
         # required for `private` repositories
         if self.token:
-            headers["authorization"] = "Bearer {token}".format(token=self.token)
+            headers["authorization"] = f"Bearer {self.token}"
 
         return headers
 
     def _get_release_id(self, release_version):
-        """Get ID of a specific release"""
-
+        """Get ID of a specific release."""
         url = ("{base_url}/repos/{repo_name}/releases/tags/{version}").format(
             base_url=self.github_api_url,
             repo_name=self.repository,
             version=release_version,
         )
 
-        response = requests.get(url, headers=self._get_request_headers)
+        response = requests.get(url, headers=self._get_request_headers, timeout=10)
 
         release_id = ""
 
-        if response.status_code == 200:
+        if response.ok:
             response_data = response.json()
             # get the published date of the latest release
             release_id = response_data["id"]
@@ -68,8 +68,7 @@ class ChangelogCIBase:
         return release_id
 
     def _get_release_date(self, release_version):
-        """Using GitHub API gets latest release date"""
-
+        """Using GitHub API gets latest release date."""
         if release_version == "latest":
             version = release_version
         else:
@@ -81,11 +80,11 @@ class ChangelogCIBase:
             version=version,
         )
 
-        response = requests.get(url, headers=self._get_request_headers)
+        response = requests.get(url, headers=self._get_request_headers, timeout=10)
 
         published_date = ""
 
-        if response.status_code == 200:
+        if response.ok:
             response_data = response.json()
             # get the published date of the latest release
             published_date = response_data["published_at"]
@@ -100,9 +99,8 @@ class ChangelogCIBase:
         return published_date
 
     def _write_changelog(self, string_data):
-        """Write changelog to the changelog file"""
-
-        with open(self.filename, "r+") as file:
+        """Write changelog to the changelog file."""
+        with self.filename.open(mode="r+") as file:
             # read the existing data and store it in a variable
             yaml = YAML()
             yaml.explicit_start = True
@@ -111,13 +109,12 @@ class ChangelogCIBase:
 
     @staticmethod
     def _get_changelog_line(item):
-        """Generate each line of changelog"""
+        """Generate each line of changelog."""
         return "{title} ({url})".format(title=item["title"], url=item["url"])
 
     def get_changes_after_last_release(self):
-        """
-        Get all the merged pull request after specified release
-        until optionally specified release
+        """Get all the merged pull request after specified release
+        until optionally specified release.
         """
         since_release_date = self._get_release_date(self.since_version)
 
@@ -144,9 +141,9 @@ class ChangelogCIBase:
 
         items = []
 
-        response = requests.get(url, headers=self._get_request_headers)
+        response = requests.get(url, headers=self._get_request_headers, timeout=10)
 
-        if response.status_code == 200:
+        if response.ok:
             response_data = response.json()
             # `total_count` represents the number of
             # pull requests returned by the API call
@@ -196,13 +193,13 @@ class ChangelogCIBase:
                     if url_found and not_full_match:
                         del current_changes[change_type][idx]
 
-    def parse_changelog(self, changes):
-        """Parse the pull requests data and return a string"""
+    def parse_changelog(self, changes):  # noqa: C901, PLR0912
+        """Parse the pull requests data and return a string."""
+
         yaml = YAML()
 
-        with open(
-            "changelogs/changelog.yaml",
-        ) as file:
+        changelog = Path("changelogs/changelog.yaml")
+        with changelog.open(encoding="utf-8") as file:
             data = yaml.load(file)
 
         # get the new version from the changelog.yaml
@@ -279,8 +276,7 @@ class ChangelogCIBase:
         return data
 
     def run(self):
-        """Entrypoint"""
-
+        """Entrypoint."""
         changes = self.get_changes_after_last_release()
         # exit the method if there are no changes found
         if not changes:
