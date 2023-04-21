@@ -34,7 +34,6 @@ PR's that do not have one of the above labels get categorized into the
 pip install antsichaut
 ```
 
-
 ## Manual Usage
 
 You need a minimal `changelog.yml` created by antsibull-changelog:
@@ -78,7 +77,9 @@ Check this [example](https://github.com/T-Systems-MMS/ansible-collection-icinga-
 ## Acknowledgements and Kudos
 
 This script was initially forked from https://github.com/saadmk11/changelog-ci/
-and modified to suit my needs. Thank you, @saadmk11!
+and modified by @rndmh3ro. Thank you, @saadmk11!
+
+From May 2021 through May 2023, this project was maintained by @rndmh3ro and then graciously transferred to the ansible community orgnaization. Thank you @rndmh3ro!
 
 ## License
 

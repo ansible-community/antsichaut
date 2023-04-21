@@ -76,7 +76,9 @@ class ChangelogCIBase:
             version = self._get_release_id(release_version)
 
         url = ("{base_url}/repos/{repo_name}/releases/{version}").format(
-            base_url=self.github_api_url, repo_name=self.repository, version=version
+            base_url=self.github_api_url,
+            repo_name=self.repository,
+            version=version,
         )
 
         response = requests.get(url, headers=self._get_request_headers)
@@ -230,33 +232,27 @@ class ChangelogCIBase:
                     change_type = config["title"]
 
                     # add the new change section if it does not exist yet
-                    if (
-                        change_type
-                        not in dict(data)["releases"][new_version]["changes"]
-                    ):
+                    if change_type not in dict(data)["releases"][new_version]["changes"]:
                         dict(data)["releases"][new_version]["changes"].update(
-                            {change_type: []}
+                            {change_type: []},
                         )
 
                     pr = self._get_changelog_line(pull_request)
 
                     # if the pr is already in the dict, do not add it, just remove it
                     # from the list of pull_requests
-                    if (
-                        pr
-                        in dict(data)["releases"][new_version]["changes"][change_type]
-                    ):
+                    if pr in dict(data)["releases"][new_version]["changes"][change_type]:
                         break
 
                     # if there is no change of this change_type yet, add a new list
                     if not dict(data)["releases"][new_version]["changes"][change_type]:
                         dict(data)["releases"][new_version]["changes"][change_type] = [
-                            pr
+                            pr,
                         ]
                         break
                     # if there is a change of this change_type, append to the list
                     dict(data)["releases"][new_version]["changes"][change_type].append(
-                        pr
+                        pr,
                     )
                     break
             else:
@@ -452,7 +448,11 @@ def main():
         {"title": "skip_changelog", "labels": args.skip_changelog_labels},
     ]
     ci = ChangelogCIBase(
-        repository, since_version, to_version, group_config, token=token
+        repository,
+        since_version,
+        to_version,
+        group_config,
+        token=token,
     )
     # Run Changelog CI
     ci.run()

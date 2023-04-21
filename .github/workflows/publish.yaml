@@ -11,27 +11,27 @@ jobs:
     runs-on: ubuntu-latest
     name: publish release to PyPi
     steps:
-    - uses: actions/checkout@v3.3.0
-      with:
-        fetch-depth: 0
+      - uses: actions/checkout@v3.3.0
+        with:
+          fetch-depth: 0
 
-    - name: Setup Poetry
-      uses: pronovic/setup-poetry@v1
+      - name: Setup Poetry
+        uses: pronovic/setup-poetry@v1
 
-    - name: update version
-      run: "poetry version ${{ github.event.release.tag_name }}"
+      - name: update version
+        run: "poetry version ${{ github.event.release.tag_name }}"
 
-    - name: Publish project
-      run: "poetry publish --build --username ${{ secrets.PYPI_USERNAME }} --password ${{ secrets.PYPI_PASSWORD }}"
+      - name: Publish project
+        run: "poetry publish --build --username ${{ secrets.PYPI_USERNAME }} --password ${{ secrets.PYPI_PASSWORD }}"
 
-    - name: push updated pyproject.toml
-      uses: github-actions-x/commit@v2.9
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        push-branch: 'main'
-        commit-message: 'update pyproject with new version ${{ github.event.release.tag_name }}'
-        force-add: 'true'
-        files: pyproject.toml
-        name: rndmh3ro
-        email: rndmh3ro@users.noreply.github.com
-        rebase: true
+      - name: push updated pyproject.toml
+        uses: github-actions-x/commit@v2.9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push-branch: "main"
+          commit-message: "update pyproject with new version ${{ github.event.release.tag_name }}"
+          force-add: "true"
+          files: pyproject.toml
+          name: rndmh3ro
+          email: rndmh3ro@users.noreply.github.com
+          rebase: true
