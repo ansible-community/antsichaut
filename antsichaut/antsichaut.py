@@ -196,7 +196,6 @@ class ChangelogCIBase:
                     if url_found and not_full_match:
                         del current_changes[change_type][idx]
 
-
     def parse_changelog(self, changes):
         """Parse the pull requests data and return a string"""
         yaml = YAML()
