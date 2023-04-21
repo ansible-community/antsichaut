@@ -195,7 +195,7 @@ class ChangelogCIBase:
 
     def parse_changelog(self, changes):  # noqa: C901, PLR0912
         """Parse the pull requests data and return a string."""
-        
+
         yaml = YAML()
 
         changelog = Path("changelogs/changelog.yaml")
