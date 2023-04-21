@@ -171,6 +171,31 @@ class ChangelogCIBase:
 
         return items
 
+    def remove_outdated(self, changes, data, new_version):
+        """Remove outdate changes from changelog.
+
+        Walk through the exisiting changelog looking for each PR.
+        If the PR is found in a given line, but the title has changed,
+        remove the line from the changelog. Rather than exit early,
+        continue to walk through the changelog to ensure that all
+        changes are removed.
+
+        :param changes: list of PRs
+        :param data: existing changelog data
+        :param new_version: new version of the package to be released
+        """
+        current_changes = data["releases"][new_version]["changes"]
+        for pull_request in changes:
+            new_entry = self._get_changelog_line(pull_request)
+            url = pull_request["url"]
+            for change_type, changes_of_type in current_changes.items():
+                change_list = reversed(list(enumerate(changes_of_type)))
+                for idx, current_entry in change_list:
+                    url_found = url in current_entry
+                    not_full_match = new_entry != current_entry
+                    if url_found and not_full_match:
+                        del current_changes[change_type][idx]
+
     def parse_changelog(self, changes):
         """Parse the pull requests data and return a string"""
         yaml = YAML()
@@ -186,6 +211,13 @@ class ChangelogCIBase:
 
         # add changes-key to the release dict
         dict(data)["releases"][new_version].insert(0, "changes", {})
+
+        # Remove outdated changes from changelog
+        self.remove_outdated(
+            changes=changes,
+            data=data,
+            new_version=new_version,
+        )
 
         leftover_changes = []
         for pull_request in changes:
