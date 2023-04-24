@@ -18,7 +18,7 @@ jobs:
     name: tox -e py${{ matrix.python-version }}-test
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5
+        uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
