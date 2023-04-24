@@ -1,5 +1,6 @@
 antsibull
 antsichaut
+capsys
 certifi
 chardet
 clib
@@ -10,6 +11,7 @@ gumprich
 haque
 maksudul
 notesdir
+passenv
 rndmh3ro
 ruamel
 saadmk11

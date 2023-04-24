@@ -1,3 +1,7 @@
 venv/
 test/changelogs/.plugin-cache.yaml
 dist/
+*.pyc
+
+# Local environment variables
+.env
