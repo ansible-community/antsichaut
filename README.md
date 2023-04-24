@@ -23,7 +23,7 @@ group_config = [
 This means for example that PR's with the label `major` get categorized
 into the `major_changes` section of the changelog.
 
-PR's that hace a `skip_changelog` do not get added to the changelog at all.
+PR's that have a `skip_changelog` do not get added to the changelog at all.
 
 PR's that do not have one of the above labels get categorized into the
 `trivial` section.
@@ -79,7 +79,7 @@ Check this [example](https://github.com/T-Systems-MMS/ansible-collection-icinga-
 This script was initially forked from https://github.com/saadmk11/changelog-ci/
 and modified by @rndmh3ro. Thank you, @saadmk11!
 
-From May 2021 through May 2023, this project was maintained by @rndmh3ro and then graciously transferred to the ansible community orgnaization. Thank you @rndmh3ro!
+From May 2021 through May 2023, this project was maintained by @rndmh3ro and then graciously transferred to the ansible community organization. Thank you @rndmh3ro!
 
 ## License
 
