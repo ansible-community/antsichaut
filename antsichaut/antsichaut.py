@@ -33,7 +33,10 @@ class ChangelogCIBase:
 
     @cached_property
     def _get_request_headers(self):
-        """Get headers for GitHub API request."""
+        """Get headers for GitHub API request.
+
+        :return: The constructed headers
+        """
         headers = {"Accept": "application/vnd.github.v3+json"}
         # if the user adds `GITHUB_TOKEN` add it to API Request
         # required for `private` repositories
@@ -43,7 +46,11 @@ class ChangelogCIBase:
         return headers
 
     def _get_release_id(self, release_version):
-        """Get ID of a specific release."""
+        """Get ID of a specific release.
+
+        :param release_version: The version of the release
+        :return: The release ID
+        """
         url = ("{base_url}/repos/{repo_name}/releases/tags/{version}").format(
             base_url=self.github_api_url,
             repo_name=self.repository,
@@ -68,7 +75,11 @@ class ChangelogCIBase:
         return release_id
 
     def _get_release_date(self, release_version):
-        """Using GitHub API gets latest release date."""
+        """Using GitHub API gets latest release date.
+
+        :param release_version: The version of the release
+        :return: The release date
+        """
         if release_version == "latest":
             version = release_version
         else:
@@ -99,7 +110,10 @@ class ChangelogCIBase:
         return published_date
 
     def _write_changelog(self, string_data):
-        """Write changelog to the changelog file."""
+        """Write changelog to the changelog file.
+
+        :param string_data: The changelog data
+        """
         with self.filename.open(mode="r+") as file:
             # read the existing data and store it in a variable
             yaml = YAML()
@@ -109,12 +123,19 @@ class ChangelogCIBase:
 
     @staticmethod
     def _get_changelog_line(item):
-        """Generate each line of changelog."""
+        """Generate each line of changelog.
+
+        :param item: The item to generate the line for
+        :return: The generated line
+        """
         return "{title} ({url})".format(title=item["title"], url=item["url"])
 
     def get_changes_after_last_release(self):
-        """Get all the merged pull request after specified release
-        until optionally specified release.
+        """Get all the merged pull request.
+
+        Only after specified release, optionally until specified release.
+
+        :return: The list of pull requests
         """
         since_release_date = self._get_release_date(self.since_version)
 
@@ -194,7 +215,11 @@ class ChangelogCIBase:
                         del current_changes[change_type][idx]
 
     def parse_changelog(self, changes):  # noqa: C901, PLR0912
-        """Parse the pull requests data and return a string."""
+        """Parse the pull requests data and return a string.
+
+        :param changes: The list of PRs
+        :return: A dictionary representing the complete changelog
+        """
 
         yaml = YAML()
 
