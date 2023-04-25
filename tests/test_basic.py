@@ -1,18 +1,27 @@
 """Basic tests for antsichaut."""
+from __future__ import annotations
+
 import io
 import os
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from ruamel.yaml import YAML
 
 from antsichaut.antsichaut import ChangelogCIBase
 
+if TYPE_CHECKING:
+    from collections import OrderedDict
+
+    from _typeshed import OpenTextMode
+
+
 REPO = "ansible-community/antsichaut"
 FIXTURE_DIR = Path(__file__).parent / "fixtures"
 
 
-def test_failure(capsys):
+def test_failure(capsys: pytest.CaptureFixture[str]) -> None:
     """Ensure a failure if no token is provided.
 
     :param capsys: pytest fixture for capturing stdout and stderr
@@ -20,7 +29,7 @@ def test_failure(capsys):
     cci = ChangelogCIBase(
         repository=REPO,
         since_version="0.0.0",
-        to_version=None,
+        to_version="",
         group_config=[],
     )
     cci.run()
@@ -29,7 +38,7 @@ def test_failure(capsys):
     assert captured[0].startswith(message)
 
 
-def test_success(monkeypatch: pytest.MonkeyPatch):
+def test_success(monkeypatch: pytest.MonkeyPatch) -> None:
     """Ensure a success if a token is provided.
 
     :param monkeypatch: pytest fixture for monkey patching
@@ -40,8 +49,17 @@ def test_success(monkeypatch: pytest.MonkeyPatch):
 
     orig_open = Path.open
 
-    def _open(*args, **_kwargs):
-        return orig_open(FIXTURE_DIR / args[0])
+    def _open(  # noqa: PLR0913
+        path: Path,
+        mode: OpenTextMode = "r",  # noqa: ARG001
+        buffering: int = -1,  # noqa: ARG001
+        encoding: str | None = None,  # noqa: ARG001
+        errors: str | None = None,  # noqa: ARG001
+        newline: str | None = None,  # noqa: ARG001
+    ) -> io.TextIOWrapper:
+        # pylint: disable=unused-argument
+        # pylint: disable=too-many-arguments
+        return orig_open(FIXTURE_DIR / path)
 
     monkeypatch.setattr(Path, "open", _open)
 
@@ -53,7 +71,7 @@ def test_success(monkeypatch: pytest.MonkeyPatch):
         token=token,
     )
 
-    def _write_changelog(string_data):
+    def _write_changelog(string_data: OrderedDict[str, str]) -> None:
         str_io = io.StringIO()
         yaml = YAML()
         yaml.dump(string_data, str_io)

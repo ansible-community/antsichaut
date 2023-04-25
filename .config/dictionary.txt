@@ -17,4 +17,5 @@ ruamel
 saadmk11
 testenv
 timeperiod
+typeshed
 usergroups

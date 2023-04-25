@@ -1,9 +1,11 @@
 #!/usr/bin/python
 """The antsichaut module."""
 
+from collections import OrderedDict
 from functools import cached_property
 from importlib.metadata import version as _version
 from pathlib import Path
+from typing import Any, Optional
 
 import configargparse
 import requests
@@ -18,12 +20,12 @@ class ChangelogCIBase:
 
     def __init__(  # noqa: PLR0913
         self,
-        repository,
-        since_version,
-        to_version,
-        group_config,
-        filename="changelogs/changelog.yaml",
-        token=None,
+        repository: str,
+        since_version: str,
+        to_version: str,
+        group_config: list[dict[str, str]],
+        filename: str = "changelogs/changelog.yaml",
+        token: Optional[str] = None,
     ) -> None:
         # pylint: disable=too-many-arguments
         self.repository = repository
@@ -34,7 +36,7 @@ class ChangelogCIBase:
         self.group_config = group_config
 
     @cached_property
-    def _get_request_headers(self):
+    def _get_request_headers(self) -> dict[str, str]:
         """Get headers for GitHub API request.
 
         :return: The constructed headers
@@ -47,7 +49,7 @@ class ChangelogCIBase:
 
         return headers
 
-    def _get_release_id(self, release_version):
+    def _get_release_id(self, release_version: str) -> str:
         """Get ID of a specific release.
 
         :param release_version: The version of the release
@@ -72,7 +74,7 @@ class ChangelogCIBase:
             print(msg)
         return release_id
 
-    def _get_release_date(self, release_version):
+    def _get_release_date(self, release_version: str) -> str:
         """Using GitHub API gets latest release date.
 
         :param release_version: The version of the release
@@ -103,7 +105,7 @@ class ChangelogCIBase:
 
         return published_date
 
-    def _write_changelog(self, string_data):
+    def _write_changelog(self, string_data: OrderedDict[str, str]) -> None:
         """Write changelog to the changelog file.
 
         :param string_data: The changelog data
@@ -116,7 +118,7 @@ class ChangelogCIBase:
             yaml.dump(string_data, file)
 
     @staticmethod
-    def _get_changelog_line(item):
+    def _get_changelog_line(item: dict[str, str]) -> str:
         """Generate each line of changelog.
 
         :param item: The item to generate the line for
@@ -124,7 +126,7 @@ class ChangelogCIBase:
         """
         return f"{item['title']} ({item['url']})"
 
-    def get_changes_after_last_release(self):
+    def get_changes_after_last_release(self) -> list[dict[str, str]]:
         """Get all the merged pull request.
 
         Only after specified release, optionally until specified release.
@@ -179,7 +181,12 @@ class ChangelogCIBase:
 
         return items
 
-    def remove_outdated(self, changes, data, new_version):
+    def remove_outdated(
+        self,
+        changes: list[dict[str, str]],
+        data: dict[str, dict[str, dict[str, dict[str, list[str]]]]],
+        new_version: str,
+    ) -> None:
         """Remove outdate changes from changelog.
 
         Walk through the existing changelog looking for each PR.
@@ -204,7 +211,10 @@ class ChangelogCIBase:
                     if url_found and not_full_match:
                         del current_changes[change_type][idx]
 
-    def parse_changelog(self, changes):  # noqa: C901, PLR0912
+    def parse_changelog(  # noqa: C901, PLR0912
+        self,
+        changes: list[dict[str, str]],
+    ) -> Any:
         """Parse the pull requests data and return a string.
 
         :param changes: The list of PRs
@@ -290,7 +300,7 @@ class ChangelogCIBase:
 
         return data
 
-    def run(self):
+    def run(self) -> None:
         """Entrypoint."""
         changes = self.get_changes_after_last_release()
         # exit the method if there are no changes found
@@ -301,19 +311,23 @@ class ChangelogCIBase:
         self._write_changelog(string_data)
 
 
-def version():
+def version() -> str:
     """Return the version of this package.
 
     :return: the version of this package
+    :raises TypeError: if the version is not a string
     """
     __version__ = get_version(__name__, Path(__file__).parent.parent)
     if not __version__:  # pragma: no cover
         # Only works when package is installed
         __version__ = _version("antsichaut")
+    if not isinstance(__version__, str):
+        err = "Unable to detect version"
+        raise TypeError(err)
     return __version__
 
 
-def main():
+def main() -> None:
     """Entrypoint."""
     parser = configargparse.ArgParser(
         default_config_files=[".antsichaut.yaml"],
