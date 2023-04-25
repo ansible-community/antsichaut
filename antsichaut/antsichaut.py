@@ -25,7 +25,7 @@ class ChangelogCIBase:
         token=None,
     ) -> None:
         self.repository = repository
-        self.filename = filename
+        self.filename = Path(filename)
         self.token = token
         self.since_version = since_version
         self.to_version = to_version
