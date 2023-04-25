@@ -5,3 +5,6 @@ dist/
 
 # Local environment variables
 .env
+
+# tox
+.tox
