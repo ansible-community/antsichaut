@@ -57,14 +57,18 @@ repos:
     hooks:
       - id: darglint
 
-  # - repo: https://github.com/pycqa/pylint.git
-  #   rev: v3.0.0a6
-  #   hooks:
-  #     - id: pylint
-  #       args:
-  #         - --output-format=colorized
-  #       additional_dependencies:
-  #         - pytest
+  - repo: https://github.com/pycqa/pylint.git
+    rev: v3.0.0a6
+    hooks:
+      - id: pylint
+        args:
+          - --output-format=colorized
+        additional_dependencies:
+          - pytest
+          - ruamel.yaml
+          - configargparse
+          - requests
+          - single_source
 
   # - repo: https://github.com/pre-commit/mirrors-mypy.git
   #   rev: v1.2.0

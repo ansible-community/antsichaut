@@ -1,4 +1,5 @@
 #!/usr/bin/python
+"""The antsichaut module."""
 
 from functools import cached_property
 from importlib.metadata import version as _version
@@ -24,6 +25,7 @@ class ChangelogCIBase:
         filename="changelogs/changelog.yaml",
         token=None,
     ) -> None:
+        # pylint: disable=too-many-arguments
         self.repository = repository
         self.filename = Path(filename)
         self.token = token
@@ -51,11 +53,7 @@ class ChangelogCIBase:
         :param release_version: The version of the release
         :return: The release ID
         """
-        url = ("{base_url}/repos/{repo_name}/releases/tags/{version}").format(
-            base_url=self.github_api_url,
-            repo_name=self.repository,
-            version=release_version,
-        )
+        url = f"{self.github_api_url}/repos/{self.repository}/releases/tags/{release_version}"
 
         response = requests.get(url, headers=self._get_request_headers, timeout=10)
 
@@ -81,15 +79,11 @@ class ChangelogCIBase:
         :return: The release date
         """
         if release_version == "latest":
-            version = release_version
+            _version = release_version
         else:
-            version = self._get_release_id(release_version)
+            _version = self._get_release_id(release_version)
 
-        url = ("{base_url}/repos/{repo_name}/releases/{version}").format(
-            base_url=self.github_api_url,
-            repo_name=self.repository,
-            version=version,
-        )
+        url = f"{self.github_api_url}/repos/{self.repository}/releases/{_version}"
 
         response = requests.get(url, headers=self._get_request_headers, timeout=10)
 
@@ -114,7 +108,7 @@ class ChangelogCIBase:
 
         :param string_data: The changelog data
         """
-        with self.filename.open(mode="r+") as file:
+        with self.filename.open(mode="r+", encoding="utf-8") as file:
             # read the existing data and store it in a variable
             yaml = YAML()
             yaml.explicit_start = True
@@ -128,7 +122,7 @@ class ChangelogCIBase:
         :param item: The item to generate the line for
         :return: The generated line
         """
-        return "{title} ({url})".format(title=item["title"], url=item["url"])
+        return f"{item['title']} ({item['url']})"
 
     def get_changes_after_last_release(self):
         """Get all the merged pull request.
@@ -146,18 +140,14 @@ class ChangelogCIBase:
         )
 
         url = (
-            "{base_url}/search/issues"
-            "?q=repo:{repo_name}+"
+            f"{self.github_api_url}/search/issues"
+            f"?q=repo:{self.repository}+"
             "is:pr+"
             "is:merged+"
             "sort:author-date-asc+"
-            "{merged_date_filter}"
+            f"{merged_date_filter}"
             "&sort=merged"
             "&per_page=100"
-        ).format(
-            base_url=self.github_api_url,
-            repo_name=self.repository,
-            merged_date_filter=merged_date_filter,
         )
 
         items = []
@@ -220,7 +210,7 @@ class ChangelogCIBase:
         :param changes: The list of PRs
         :return: A dictionary representing the complete changelog
         """
-
+        # pylint: disable=too-many-branches
         yaml = YAML()
 
         changelog = Path("changelogs/changelog.yaml")
@@ -258,22 +248,22 @@ class ChangelogCIBase:
                             {change_type: []},
                         )
 
-                    pr = self._get_changelog_line(pull_request)
+                    cl_entry = self._get_changelog_line(pull_request)
 
                     # if the pr is already in the dict, do not add it, just remove it
                     # from the list of pull_requests
-                    if pr in dict(data)["releases"][new_version]["changes"][change_type]:
+                    if cl_entry in dict(data)["releases"][new_version]["changes"][change_type]:
                         break
 
                     # if there is no change of this change_type yet, add a new list
                     if not dict(data)["releases"][new_version]["changes"][change_type]:
                         dict(data)["releases"][new_version]["changes"][change_type] = [
-                            pr,
+                            cl_entry,
                         ]
                         break
                     # if there is a change of this change_type, append to the list
                     dict(data)["releases"][new_version]["changes"][change_type].append(
-                        pr,
+                        cl_entry,
                     )
                     break
             else:
@@ -286,17 +276,17 @@ class ChangelogCIBase:
             if change_type not in dict(data)["releases"][new_version]["changes"]:
                 dict(data)["releases"][new_version]["changes"].update({change_type: []})
 
-            pr = self._get_changelog_line(pull_request)
+            cl_entry = self._get_changelog_line(pull_request)
 
             # if the pr is already in the dict, do not add it, just remove it
             # from the list of pull_requests
-            if pr in dict(data)["releases"][new_version]["changes"][change_type]:
+            if cl_entry in dict(data)["releases"][new_version]["changes"][change_type]:
                 continue
             if not dict(data)["releases"][new_version]["changes"][change_type]:
-                dict(data)["releases"][new_version]["changes"][change_type] = [pr]
+                dict(data)["releases"][new_version]["changes"][change_type] = [cl_entry]
             # if there is a change of this change_type, append to the list
             else:
-                dict(data)["releases"][new_version]["changes"][change_type].append(pr)
+                dict(data)["releases"][new_version]["changes"][change_type].append(cl_entry)
 
         return data
 
@@ -312,6 +302,10 @@ class ChangelogCIBase:
 
 
 def version():
+    """Return the version of this package.
+
+    :return: the version of this package
+    """
     __version__ = get_version(__name__, Path(__file__).parent.parent)
     if not __version__:  # pragma: no cover
         # Only works when package is installed
@@ -320,42 +314,43 @@ def version():
 
 
 def main():
-    p = configargparse.ArgParser(
+    """Entrypoint."""
+    parser = configargparse.ArgParser(
         default_config_files=[".antsichaut.yaml"],
         config_file_parser_class=configargparse.YAMLConfigFileParser,
         formatter_class=configargparse.ArgumentDefaultsHelpFormatter,
     )
 
     # Add the arguments
-    p.add(
+    parser.add(
         "--repository",
         type=str,
         help="the github-repository in the form of owner/repo-name",
         env_var="GITHUB_REPOSITORY",
         required=True,
     )
-    p.add(
+    parser.add(
         "--github_token",
         type=str,
         help="a token to access github",
         env_var="GITHUB_TOKEN",
         required=True,
     )
-    p.add(
+    parser.add(
         "--since_version",
         type=str,
         help="the version to fetch PRs since",
         env_var="SINCE_VERSION",
         required=True,
     )
-    p.add(
+    parser.add(
         "--to_version",
         type=str,
         help="the version to fetch PRs to",
         env_var="TO_VERSION",
         required=False,
     )
-    p.add(
+    parser.add(
         "--major_changes_labels",
         dest="major_changes_labels",
         type=str,
@@ -364,7 +359,7 @@ def main():
         env_var="MAJOR_CHANGES_LABELS",
         required=False,
     )
-    p.add(
+    parser.add(
         "--minor_changes_labels",
         dest="minor_changes_labels",
         type=str,
@@ -373,7 +368,7 @@ def main():
         env_var="MINOR_CHANGES_LABELS",
         required=False,
     )
-    p.add(
+    parser.add(
         "--breaking_changes_labels",
         dest="breaking_changes_labels",
         type=str,
@@ -382,7 +377,7 @@ def main():
         env_var="BRAKING_CHANGES_LABELS",
         required=False,
     )
-    p.add(
+    parser.add(
         "--deprecated_features_labels",
         dest="deprecated_features_labels",
         type=str,
@@ -391,7 +386,7 @@ def main():
         env_var="DEPRECATED_FEATURES_LABELS",
         required=False,
     )
-    p.add(
+    parser.add(
         "--removed_features_labels",
         dest="removed_features_labels",
         type=str,
@@ -400,7 +395,7 @@ def main():
         env_var="REMOVED_FEATURES_LABELS",
         required=False,
     )
-    p.add(
+    parser.add(
         "--security_fixes_labels",
         dest="security_fixes_labels",
         type=str,
@@ -409,7 +404,7 @@ def main():
         env_var="SECURITY_FIXES_LABELS",
         required=False,
     )
-    p.add(
+    parser.add(
         "--bugfixes_labels",
         dest="bugfixes_labels",
         type=str,
@@ -418,7 +413,7 @@ def main():
         env_var="BUGFIXES_LABELS",
         required=False,
     )
-    p.add(
+    parser.add(
         "--skip_changelog_labels",
         dest="skip_changelog_labels",
         type=str,
@@ -427,10 +422,10 @@ def main():
         env_var="SKIP_CHANGELOG_LABELS",
         required=False,
     )
-    p.add("--version", action="version", version=version())
+    parser.add("--version", action="version", version=version())
 
     # Execute the parse_args() method
-    args = p.parse_args()
+    args = parser.parse_args()
 
     # set defaults if the labels are undefined
     # setting them with argparse does not work, because
@@ -467,7 +462,7 @@ def main():
         {"title": "bugfixes", "labels": args.bugfixes_labels},
         {"title": "skip_changelog", "labels": args.skip_changelog_labels},
     ]
-    ci = ChangelogCIBase(
+    cl_cib = ChangelogCIBase(
         repository,
         since_version,
         to_version,
@@ -475,7 +470,7 @@ def main():
         token=token,
     )
     # Run Changelog CI
-    ci.run()
+    cl_cib.run()
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+"""Basic tests for antsichaut."""
 import io
 import os
 from pathlib import Path
