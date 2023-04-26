@@ -436,6 +436,15 @@ def main() -> None:
         env_var="SKIP_CHANGELOG_LABELS",
         required=False,
     )
+    parser.add(
+        "--doc_changes_labels",
+        dest="doc_changes_labels",
+        type=str,
+        action="append",
+        help="the labels for doc_changes. Default: ['doc_changes']",
+        env_var="DOC_CHANGES_LABELS",
+        required=False,
+    )
     parser.add("--version", action="version", version=version())
 
     # Execute the parse_args() method
@@ -460,6 +469,8 @@ def main() -> None:
         args.bugfixes_labels = ["bug", "bugfix"]
     if not args.skip_changelog_labels:
         args.skip_changelog_labels = ["skip_changelog"]
+    if not args.doc_changes_labels:
+        args.doc_changes_labels = ["doc_changes"]
 
     repository = args.repository
     since_version = args.since_version
@@ -474,6 +485,7 @@ def main() -> None:
         {"title": "removed_features", "labels": args.removed_features_labels},
         {"title": "security_fixes", "labels": args.security_fixes_labels},
         {"title": "bugfixes", "labels": args.bugfixes_labels},
+        {"title": "doc_changes", "labels": args.doc_changes_labels},
         {"title": "skip_changelog", "labels": args.skip_changelog_labels},
     ]
     cl_cib = ChangelogCIBase(
