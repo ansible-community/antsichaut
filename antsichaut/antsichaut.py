@@ -58,7 +58,6 @@ class ChangelogCIBase:
         """Get headers for GitHub API request.
 
         :return: The constructed headers
-
         """
         headers = {"Accept": "application/vnd.github.v3+json"}
         # if the user adds `GITHUB_TOKEN` add it to API Request
