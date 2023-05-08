@@ -1,6 +1,7 @@
 #!/usr/bin/python
 """The antsichaut module."""
 
+import re
 from collections import OrderedDict
 from functools import cached_property
 from importlib.metadata import version as _version
@@ -12,9 +13,24 @@ import requests
 from ruamel.yaml import YAML
 from single_source import get_version
 
+ChLogType = Optional[
+    OrderedDict[
+        str,
+        OrderedDict[
+            str,
+            OrderedDict[
+                str,
+                OrderedDict[str, list[str]],
+            ],
+        ],
+    ]
+]
+
 
 class ChangelogCIBase:
     """Base Class for antsichaut."""
+
+    # pylint: disable=too-many-instance-attributes
 
     github_api_url = "https://api.github.com"
 
@@ -34,12 +50,15 @@ class ChangelogCIBase:
         self.since_version = since_version
         self.to_version = to_version
         self.group_config = group_config
+        self._string_data: ChLogType = None
+        self._sorted_string_data: ChLogType = None
 
     @cached_property
     def _get_request_headers(self) -> dict[str, str]:
         """Get headers for GitHub API request.
 
         :return: The constructed headers
+
         """
         headers = {"Accept": "application/vnd.github.v3+json"}
         # if the user adds `GITHUB_TOKEN` add it to API Request
@@ -105,17 +124,14 @@ class ChangelogCIBase:
 
         return published_date
 
-    def _write_changelog(self, string_data: OrderedDict[str, str]) -> None:
-        """Write changelog to the changelog file.
-
-        :param string_data: The changelog data
-        """
+    def _write_changelog(self) -> None:
+        """Write changelog to the changelog file."""
         with self.filename.open(mode="r+", encoding="utf-8") as file:
             # read the existing data and store it in a variable
             yaml = YAML()
             yaml.explicit_start = True
             yaml.indent(sequence=4, offset=2)
-            yaml.dump(string_data, file)
+            yaml.dump(self._string_data, file)
 
     @staticmethod
     def _get_changelog_line(item: dict[str, str]) -> str:
@@ -300,6 +316,31 @@ class ChangelogCIBase:
 
         return data
 
+    def _sort_by_pr(self) -> None:
+        """Sort changelog by PR number."""
+        if not self._string_data or "releases" not in self._string_data:
+            return
+        for _release_number, release_changes in self._string_data["releases"].items():
+            if "changes" not in release_changes:
+                continue
+            for _change_type, changes in release_changes["changes"].items():
+                changes.sort(
+                    key=self._extract_pr_number_from_url,
+                    reverse=True,
+                )
+
+    @staticmethod
+    def _extract_pr_number_from_url(url: str) -> int:
+        """Extract PR number from URL.
+
+        :param url: The URL to extract the PR number from
+        :return: The PR number
+        """
+        match = re.search(r"pull/(\d+)\)", url)
+        if match:
+            return int(match.group(1))
+        return 0
+
     def run(self) -> None:
         """Entrypoint."""
         changes = self.get_changes_after_last_release()
@@ -307,8 +348,9 @@ class ChangelogCIBase:
         if not changes:
             return
 
-        string_data = self.parse_changelog(changes)
-        self._write_changelog(string_data)
+        self._string_data = self.parse_changelog(changes)
+        self._sort_by_pr()
+        self._write_changelog()
 
 
 def version() -> str:

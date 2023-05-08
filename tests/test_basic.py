@@ -3,8 +3,9 @@ from __future__ import annotations
 
 import io
 import os
+import re
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from ruamel.yaml import YAML
@@ -12,8 +13,6 @@ from ruamel.yaml import YAML
 from antsichaut.antsichaut import ChangelogCIBase
 
 if TYPE_CHECKING:
-    from collections import OrderedDict
-
     from _typeshed import OpenTextMode
 
 
@@ -63,25 +62,42 @@ def test_success(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr(Path, "open", _open)
 
-    cci = ChangelogCIBase(
+    class PatchedCCB(ChangelogCIBase):
+        """Patched ChangelogCIBase class."""
+
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            """Initialize the class.
+
+            :param args: positional arguments
+            :param kwargs: keyword arguments
+            """
+            self.test_str_data: str | None = None
+            super().__init__(*args, **kwargs)
+
+        def _write_changelog(self) -> None:
+            """Write the changelog to a string."""
+            str_io = io.StringIO()
+            yaml = YAML()
+            yaml.dump(self._string_data, str_io)
+            str_io.seek(0)
+            self.test_str_data = str_io.read()
+
+    cci = PatchedCCB(
         repository=REPO,
         since_version="0.3.2",
         to_version="0.3.5",
         group_config=[],
         token=token,
     )
-
-    def _write_changelog(string_data: OrderedDict[str, str]) -> None:
-        str_io = io.StringIO()
-        yaml = YAML()
-        yaml.dump(string_data, str_io)
-        str_io.seek(0)
-        string = str_io.read()
-        change_log = yaml.load(string)
-        trivial_changes = change_log["releases"]["1.0.0"]["changes"]["trivial"]
-        assert all(s in string for s in ("pull/10", "pull/11", "pull/12"))
-        expected_number_of_entries = 3
-        assert len(trivial_changes) == expected_number_of_entries
-
-    monkeypatch.setattr(cci, "_write_changelog", _write_changelog)
     cci.run()
+
+    yaml = YAML()
+    change_log = yaml.load(cci.test_str_data)
+    trivial_changes = change_log["releases"]["1.0.0"]["changes"]["trivial"]
+
+    assert cci.test_str_data
+    assert all(s in cci.test_str_data for s in ("pull/10", "pull/11", "pull/12"))
+    expected_number_of_entries = 3
+    assert len(trivial_changes) == expected_number_of_entries
+
+    assert re.findall(r"pull/(\d+)", cci.test_str_data) == ["12", "11", "10"]

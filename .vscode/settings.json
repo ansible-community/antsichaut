@@ -1,0 +1,15 @@
+{
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.formatting.provider": "black",
+    "python.linting.pylintEnabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.linting.mypyEnabled": true,
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true
+        }
+    },
+    "prettier.enable": false
+}
