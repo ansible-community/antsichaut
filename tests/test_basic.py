@@ -22,7 +22,7 @@ GROUP_CONFIG = [
     {
         "title": "skip_changelog",
         "labels": ["skip_changelog", "skip-changelog", "skipchangelog"],
-    }
+    },
 ]
 
 

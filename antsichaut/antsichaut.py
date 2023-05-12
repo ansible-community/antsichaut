@@ -6,7 +6,7 @@ from collections import OrderedDict
 from functools import cached_property
 from importlib.metadata import version as _version
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Sequence
 
 import configargparse
 import requests
@@ -39,7 +39,7 @@ class ChangelogCIBase:
         repository: str,
         since_version: str,
         to_version: str,
-        group_config: list[dict[str, str]],
+        group_config: list[dict[str, Sequence[str]]],
         filename: str = "changelogs/changelog.yaml",
         token: Optional[str] = None,
     ) -> None:
