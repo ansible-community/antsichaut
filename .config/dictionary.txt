@@ -15,6 +15,7 @@ passenv
 rndmh3ro
 ruamel
 saadmk11
+skipchangelog
 testenv
 timeperiod
 typeshed
