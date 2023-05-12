@@ -260,9 +260,9 @@ class ChangelogCIBase:
         for pull_request in changes:
             for config in self.group_config:
                 if any(label in pull_request["labels"] for label in config["labels"]):
-                    # if a PR contains a skip_changelog label,
+                    # if a PR contains a skip changelog label,
                     # do not add it to the changelog
-                    if config["title"] == "skip_changelog":
+                    if config["title"] in ["skip_changelog", "skip-changelog"]:
                         break
 
                     change_type = config["title"]
