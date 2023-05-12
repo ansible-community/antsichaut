@@ -259,7 +259,7 @@ class ChangelogCIBase:
         leftover_changes = []
 
         skip_labels = self.group_config.pop(
-            [i for i, d in enumerate(self.group_config) if d["title"] == "skip_changelog"][0]
+            [i for i, d in enumerate(self.group_config) if d["title"] == "skip_changelog"][0],
         )["labels"]
 
         for pull_request in changes:
