@@ -257,12 +257,16 @@ class ChangelogCIBase:
         )
 
         leftover_changes = []
+
+        skip_labels = [
+            cfg["labels"] for cfg in self.group_config if cfg["title"] == "skip_changelog"
+        ][0]
         for pull_request in changes:
             for config in self.group_config:
                 if any(label in pull_request["labels"] for label in config["labels"]):
                     # if a PR contains a skip changelog label,
                     # do not add it to the changelog
-                    if config["title"] in ["skip_changelog", "skip-changelog", "skipchangelog"]:
+                    if any(label in pull_request["labels"] for label in skip_labels):
                         break
 
                     change_type = config["title"]
@@ -473,7 +477,7 @@ def main() -> None:
         dest="skip_changelog_labels",
         type=str,
         action="append",
-        help="the labels for skip_changelog. Default: ['skip_changelog']",
+        help="the labels for skip_changelog. Default: ['skip_changelog', 'skip-changelog', 'skipchangelog']",
         env_var="SKIP_CHANGELOG_LABELS",
         required=False,
     )
@@ -500,7 +504,7 @@ def main() -> None:
     if not args.bugfixes_labels:
         args.bugfixes_labels = ["bug", "bugfix"]
     if not args.skip_changelog_labels:
-        args.skip_changelog_labels = ["skip_changelog"]
+        args.skip_changelog_labels = ["skip_changelog", "skip-changelog", "skipchangelog"]
 
     repository = args.repository
     since_version = args.since_version
