@@ -226,15 +226,22 @@ class ChangelogCIBase:
                         del current_changes[change_type][idx]
 
     @staticmethod
-    def _sort_by_semver(releases: dict) -> dict:
+    def _sort_by_semver(data: ChLogType) -> ChLogType:
         """Sort releases by semver.
 
-        :param releases: The releases to sort
+        :param data: The full changelog structure
         :return: The sorted releases
         """
-        return OrderedDict(
-            sorted(releases.items(), key=lambda t: [int(v) for v in t[0].split(".")], reverse=True)
+        if not data or "releases" not in data:
+            return data
+        data["releases"] = OrderedDict(
+            sorted(
+                data["releases"].items(),
+                key=lambda t: [int(v) for v in t[0].split(".")],
+                reverse=True,
+            ),
         )
+        return data
 
     def parse_changelog(  # noqa: C901, PLR0912
         self,
@@ -254,8 +261,7 @@ class ChangelogCIBase:
 
         # get the new version from the changelog.yaml
         # by using the last item in the list of releases
-        # sort the releases by version number, semver is assumed here
-        data["releases"] = self._sort_by_semver(data["releases"])
+        data = self._sort_by_semver(data)
         new_version = list(data["releases"].keys())[0]
 
         # add changes-key to the release dict

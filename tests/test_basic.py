@@ -110,7 +110,7 @@ def test_success(monkeypatch: pytest.MonkeyPatch) -> None:
     assert re.findall(r"pull/(\d+)", cci.test_str_data) == ["12", "11", "10"]
 
 
-def test_sort_semver():
+def test_sort_semver() -> None:
     """Test sorting by semver."""
     cci = ChangelogCIBase(
         repository=REPO,
@@ -126,8 +126,7 @@ def test_sort_semver():
 
     original = list(data["releases"].keys())
 
-    data["releases"] = cci._sort_by_semver(data["releases"])  # pylint: disable=protected-access
-
+    data = cci._sort_by_semver(data)
     revised = list(data["releases"].keys())
 
     assert original != revised
