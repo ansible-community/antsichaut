@@ -2,7 +2,6 @@
 """The antsichaut module."""
 
 import re
-from collections import OrderedDict
 from functools import cached_property
 from importlib.metadata import version as _version
 from pathlib import Path
@@ -14,13 +13,13 @@ from ruamel.yaml import YAML
 from single_source import get_version
 
 ChLogType = Optional[
-    OrderedDict[
+    dict[
         str,
-        OrderedDict[
+        dict[
             str,
-            OrderedDict[
+            dict[
                 str,
-                OrderedDict[str, list[str]],
+                dict[str, list[str]],
             ],
         ],
     ]
@@ -234,7 +233,7 @@ class ChangelogCIBase:
         """
         if not data or "releases" not in data:
             return data
-        data["releases"] = OrderedDict(
+        data["releases"] = dict(
             sorted(
                 data["releases"].items(),
                 key=lambda t: [int(v) for v in t[0].split(".")],
