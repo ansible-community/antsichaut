@@ -99,11 +99,36 @@ def test_success(monkeypatch: pytest.MonkeyPatch) -> None:
 
     yaml = YAML()
     change_log = yaml.load(cci.test_str_data)
-    trivial_changes = change_log["releases"]["1.0.0"]["changes"]["trivial"]
 
     assert cci.test_str_data
     assert all(s in cci.test_str_data for s in ("pull/10", "pull/11", "pull/12"))
+
+    trivial_changes = change_log["releases"]["1.0.11"]["changes"]["trivial"]
     expected_number_of_entries = 3
     assert len(trivial_changes) == expected_number_of_entries
 
     assert re.findall(r"pull/(\d+)", cci.test_str_data) == ["12", "11", "10"]
+
+
+def test_sort_semver():
+    """Test sorting by semver."""
+    cci = ChangelogCIBase(
+        repository=REPO,
+        since_version="0.0.0",
+        to_version="0.0.0",
+        group_config=GROUP_CONFIG,
+    )
+    changelog = FIXTURE_DIR / "changelogs/changelog.yaml"
+
+    yaml = YAML()
+    with changelog.open(encoding="utf-8") as file:
+        data = yaml.load(file)
+
+    original = list(data["releases"].keys())
+
+    data["releases"] = cci._sort_by_semver(data["releases"])  # pylint: disable=protected-access
+
+    revised = list(data["releases"].keys())
+
+    assert original != revised
+    assert revised == ["1.0.11", "1.0.10", "1.0.2", "1.0.0"]
