@@ -125,12 +125,11 @@ class ChangelogCIBase:
 
     def _write_changelog(self) -> None:
         """Write changelog to the changelog file."""
-        with self.filename.open(mode="r+", encoding="utf-8") as file:
-            # read the existing data and store it in a variable
-            yaml = YAML()
-            yaml.explicit_start = True
-            yaml.indent(sequence=4, offset=2)
-            yaml.dump(self._string_data, file)
+
+        yaml = YAML()
+        yaml.explicit_start = True
+        yaml.indent(sequence=4, offset=2)
+        yaml.dump(self._string_data, self.filename)
 
     @staticmethod
     def _get_changelog_line(item: dict[str, str]) -> str:
