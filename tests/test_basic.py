@@ -18,6 +18,12 @@ if TYPE_CHECKING:
 
 REPO = "ansible-community/antsichaut"
 FIXTURE_DIR = Path(__file__).parent / "fixtures"
+GROUP_CONFIG = [
+    {
+        "title": "skip_changelog",
+        "labels": ["skip_changelog", "skip-changelog", "skipchangelog"],
+    },
+]
 
 
 def test_failure(capsys: pytest.CaptureFixture[str]) -> None:
@@ -29,7 +35,7 @@ def test_failure(capsys: pytest.CaptureFixture[str]) -> None:
         repository=REPO,
         since_version="0.0.0",
         to_version="",
-        group_config=[],
+        group_config=GROUP_CONFIG,
     )
     cci.run()
     captured = capsys.readouterr()
@@ -86,7 +92,7 @@ def test_success(monkeypatch: pytest.MonkeyPatch) -> None:
         repository=REPO,
         since_version="0.3.2",
         to_version="0.3.5",
-        group_config=[],
+        group_config=GROUP_CONFIG,
         token=token,
     )
     cci.run()

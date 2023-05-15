@@ -6,7 +6,7 @@ from collections import OrderedDict
 from functools import cached_property
 from importlib.metadata import version as _version
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Sequence
 
 import configargparse
 import requests
@@ -39,7 +39,7 @@ class ChangelogCIBase:
         repository: str,
         since_version: str,
         to_version: str,
-        group_config: list[dict[str, str]],
+        group_config: list[dict[str, Sequence[str]]],
         filename: str = "changelogs/changelog.yaml",
         token: Optional[str] = None,
     ) -> None:
@@ -257,14 +257,19 @@ class ChangelogCIBase:
         )
 
         leftover_changes = []
+
+        skip_labels = self.group_config.pop(
+            [i for i, d in enumerate(self.group_config) if d["title"] == "skip_changelog"][0],
+        )["labels"]
+
         for pull_request in changes:
+            # if a PR contains a skip changelog label, ignore it entirely
+            # do not add it to the changelog
+            if any(label in pull_request["labels"] for label in skip_labels):
+                break
+
             for config in self.group_config:
                 if any(label in pull_request["labels"] for label in config["labels"]):
-                    # if a PR contains a skip changelog label,
-                    # do not add it to the changelog
-                    if config["title"] in ["skip_changelog", "skip-changelog", "skipchangelog"]:
-                        break
-
                     change_type = config["title"]
 
                     # add the new change section if it does not exist yet
@@ -473,7 +478,10 @@ def main() -> None:
         dest="skip_changelog_labels",
         type=str,
         action="append",
-        help="the labels for skip_changelog. Default: ['skip_changelog']",
+        help=(
+            "the labels for skip_changelog. "
+            "Default: ['skip_changelog', 'skip-changelog', 'skipchangelog']"
+        ),
         env_var="SKIP_CHANGELOG_LABELS",
         required=False,
     )
@@ -500,7 +508,7 @@ def main() -> None:
     if not args.bugfixes_labels:
         args.bugfixes_labels = ["bug", "bugfix"]
     if not args.skip_changelog_labels:
-        args.skip_changelog_labels = ["skip_changelog"]
+        args.skip_changelog_labels = ["skip_changelog", "skip-changelog", "skipchangelog"]
 
     repository = args.repository
     since_version = args.since_version
