@@ -225,6 +225,24 @@ class ChangelogCIBase:
                     if url_found and not_full_match:
                         del current_changes[change_type][idx]
 
+    @staticmethod
+    def _sort_by_semver(data: ChLogType) -> ChLogType:
+        """Sort releases by semver.
+
+        :param data: The full changelog structure
+        :return: The sorted releases
+        """
+        if not data or "releases" not in data:
+            return data
+        data["releases"] = OrderedDict(
+            sorted(
+                data["releases"].items(),
+                key=lambda t: [int(v) for v in t[0].split(".")],
+                reverse=True,
+            ),
+        )
+        return data
+
     def parse_changelog(  # noqa: C901, PLR0912
         self,
         changes: list[dict[str, str]],
@@ -243,7 +261,8 @@ class ChangelogCIBase:
 
         # get the new version from the changelog.yaml
         # by using the last item in the list of releases
-        new_version = list(dict(dict(data)["releases"]))[-1]
+        data = self._sort_by_semver(data)
+        new_version = list(data["releases"].keys())[0]
 
         # add changes-key to the release dict
         dict(data)["releases"][new_version].insert(0, "changes", {})
