@@ -344,7 +344,7 @@ class ChangelogCIBase:
         for _release_number, release_changes in self._string_data["releases"].items():
             if "changes" not in release_changes:
                 continue
-            for change_type, changes in release_changes["changes"].items():
+            for _change_type, changes in release_changes["changes"].items():
                 if not isinstance(changes, list):
                     continue
                 changes.sort(
