@@ -86,13 +86,13 @@ the version to fetch PRs to
 
 ```yaml
 ---
-- name: 'Get Previous tag'
+- name: "Get Previous tag"
   id: previoustag
   uses: "WyriHaximus/github-action-get-previous-tag@master"
   env:
     GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
-- name: 'Run antsichaut'
+- name: "Run antsichaut"
   uses: ansible-community/antsichaut@main
   with:
     GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
@@ -100,6 +100,7 @@ the version to fetch PRs to
 ```
 
 ### Examples
+
 Check these examples out:
 [telekom_mms.icinga_director](https://github.com/telekom-mms/ansible-collection-icinga-director/blob/ecb35f7ac04e7d14d2ccf21299acfc8771b8f3fd/.github/workflows/release.yml)
 [prometheus.prometheus](https://github.com/prometheus-community/ansible/blob/11802e4e9a8f785d3f6ad23cd5af24d62ed6f5a4/.github/workflows/release.yml)
