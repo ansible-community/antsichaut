@@ -72,7 +72,38 @@ Then run `antsibull-changelog generate` to create the final changelog.
 
 ## Usage with Github Actions
 
-Check this [example](https://github.com/T-Systems-MMS/ansible-collection-icinga-director/blob/21e39f00ad792a36be1373c9d8755caa8b2bc2a5/.github/workflows/release.yml) out.
+### Inputs
+
+#### `since_version`
+
+**Required** the version to fetch PRs since
+
+#### `to_version`
+
+the version to fetch PRs to
+
+### Usage
+
+```yaml
+---
+- name: "Get Previous tag"
+  id: previoustag
+  uses: "WyriHaximus/github-action-get-previous-tag@master"
+  env:
+    GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+- name: "Run antsichaut"
+  uses: ansible-community/antsichaut@main
+  with:
+    GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+    since_version: "${{ steps.previoustag.outputs.tag }}"
+```
+
+### Examples
+
+Check these examples out:
+[telekom_mms.icinga_director](https://github.com/telekom-mms/ansible-collection-icinga-director/blob/ecb35f7ac04e7d14d2ccf21299acfc8771b8f3fd/.github/workflows/release.yml)
+[prometheus.prometheus](https://github.com/prometheus-community/ansible/blob/11802e4e9a8f785d3f6ad23cd5af24d62ed6f5a4/.github/workflows/release.yml)
 
 ## Acknowledgements and Kudos
 
