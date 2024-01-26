@@ -18,3 +18,7 @@ ignorePaths:
   - cspell.config.yaml
   # The shared file for tool configuration
   - pyproject.toml
+languageSettings:
+  - languageId: markdown
+    ignoreRegExpList:
+      - "/^\\s*```[\\s\\S]*?^\\s*```/gm"
