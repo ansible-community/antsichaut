@@ -1,5 +1,6 @@
 #!/usr/bin/python
 """The antsichaut module."""
+from __future__ import annotations
 
 import re
 from functools import cached_property
@@ -40,7 +41,7 @@ class ChangelogCIBase:
         to_version: str,
         group_config: list[dict[str, Sequence[str]]],
         filename: str = "changelogs/changelog.yaml",
-        token: Optional[str] = None,
+        token: str | None = None,
     ) -> None:
         # pylint: disable=too-many-arguments
         self.repository = repository
@@ -261,7 +262,7 @@ class ChangelogCIBase:
         # get the new version from the changelog.yaml
         # by using the last item in the list of releases
         data = self._sort_by_semver(data)
-        new_version = list(data["releases"].keys())[0]
+        new_version = next(iter(data["releases"].keys()))
 
         # add changes-key to the release dict
         dict(data)["releases"][new_version].insert(0, "changes", {})
@@ -276,7 +277,7 @@ class ChangelogCIBase:
         leftover_changes = []
 
         skip_labels = self.group_config.pop(
-            [i for i, d in enumerate(self.group_config) if d["title"] == "skip_changelog"][0],
+            next(i for i, d in enumerate(self.group_config) if d["title"] == "skip_changelog"),
         )["labels"]
 
         for pull_request in changes:
@@ -341,10 +342,10 @@ class ChangelogCIBase:
         """Sort changelog by PR number."""
         if not self._string_data or "releases" not in self._string_data:
             return
-        for _release_number, release_changes in self._string_data["releases"].items():
+        for release_changes in self._string_data["releases"].values():
             if "changes" not in release_changes:
                 continue
-            for _change_type, changes in release_changes["changes"].items():
+            for changes in release_changes["changes"].values():
                 if not isinstance(changes, list):
                     continue
                 changes.sort(
