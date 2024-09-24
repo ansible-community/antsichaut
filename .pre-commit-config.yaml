@@ -63,6 +63,7 @@ repos:
       - id: pylint
         args:
           - --output-format=colorized
+          - --disable=too-many-positional-arguments
         additional_dependencies:
           - configargparse
           - pytest
