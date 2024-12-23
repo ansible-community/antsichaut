@@ -40,14 +40,14 @@ repos:
       - id: black
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.8.3"
+    rev: "v0.8.4"
     hooks:
       - id: ruff
         args:
           - "--exit-non-zero-on-fix"
 
   - repo: https://github.com/streetsidesoftware/cspell-cli
-    rev: v8.16.1
+    rev: v8.17.0
     hooks:
       - id: cspell
         name: Spell check with cspell
@@ -72,7 +72,7 @@ repos:
           - single_source
 
   - repo: https://github.com/pre-commit/mirrors-mypy.git
-    rev: v1.13.0
+    rev: v1.14.0
     hooks:
       - id: mypy
         additional_dependencies:
